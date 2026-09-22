@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  email              String   @unique
+  password           String
+  name               String
+  role               String   @default("editor")
+  mustChangePassword Boolean  @default(true)
+  createdAt          DateTime @default(now())
+}
+
+model Author {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  bio      String?
+  imageUrl String?
+  articles Article[]
+}
+
+model Category {
+  id       String     @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  slug     String     @unique
+  parentId String?    @db.ObjectId
+  parent   Category?  @relation("SubCategories", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children Category[] @relation("SubCategories")
+  articles Article[]
+}
+
+model Company {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  slug     String    @unique
+  sector   String?
+  logoUrl  String?
+  articles Article[]
+}
+
+model Tag {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  name       String    @unique
+  slug       String    @unique
+  articleIds String[]  @db.ObjectId
+  articles   Article[] @relation(fields: [articleIds], references: [id])
+}
+
+model Article {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  titleHi     String?
+  slug        String    @unique
+  summary     String
+  summaryHi   String?
+  content     String
+  contentHi   String?
+  imageUrl    String?
+  status      String    @default("draft")
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  authorId    String?   @db.ObjectId
+  author      Author?   @relation(fields: [authorId], references: [id])
+  categoryId  String?   @db.ObjectId
+  category    Category? @relation(fields: [categoryId], references: [id])
+  companyId   String?   @db.ObjectId
+  company     Company?  @relation(fields: [companyId], references: [id])
+  tagIds      String[]  @db.ObjectId
+  tags        Tag[]     @relation(fields: [tagIds], references: [id])
+  isFeatured  Boolean   @default(false)
+}
