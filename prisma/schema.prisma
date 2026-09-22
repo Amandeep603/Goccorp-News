@@ -20,6 +20,7 @@ model AdminUser {
 model Author {
   id       String    @id @default(auto()) @map("_id") @db.ObjectId
   name     String
+  slug     String?   @unique
   bio      String?
   imageUrl String?
   articles Article[]

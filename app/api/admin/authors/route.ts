@@ -44,9 +44,22 @@ export async function POST(req: Request) {
       );
     }
 
+    let baseSlug = (body.slug?.trim() || name.trim())
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    
+    let slug = baseSlug;
+    let counter = 1;
+    while (await prisma.author.findUnique({ where: { slug } })) {
+      slug = `${baseSlug}-${counter++}`;
+    }
+
     const author = await prisma.author.create({
       data: {
         name: name.trim(),
+        slug,
         bio: bio && bio.trim() !== "" ? bio.trim() : null,
         imageUrl: imageUrl && imageUrl.trim() !== "" ? imageUrl.trim() : null,
       },

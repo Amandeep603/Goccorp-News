@@ -32,10 +32,28 @@ export async function PUT(req: Request, { params }: RouteParams) {
       );
     }
 
+    let slug = existing.slug;
+    if (body.slug && body.slug.trim() !== "") {
+      slug = body.slug
+        .trim()
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/[\s_-]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    } else if (!slug) {
+      slug = name
+        .trim()
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/[\s_-]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+
     const updated = await prisma.author.update({
       where: { id },
       data: {
         name: name.trim(),
+        slug,
         bio: bio !== undefined ? (bio && bio.trim() !== "" ? bio.trim() : null) : existing.bio,
         imageUrl: imageUrl !== undefined ? (imageUrl && imageUrl.trim() !== "" ? imageUrl.trim() : null) : existing.imageUrl,
       },

@@ -15,12 +15,19 @@ async function main() {
     author = await prisma.author.create({
       data: {
         name: "Aditya Mohapatra",
+        slug: "aditya-mohapatra",
         bio: "Correspondent",
       },
     });
     console.log(`✅ Created author: ${author.name} (ID: ${author.id})`);
+  } else if (!author.slug) {
+    author = await prisma.author.update({
+      where: { id: author.id },
+      data: { slug: "aditya-mohapatra" },
+    });
+    console.log(`ℹ️ Updated author slug: ${author.name} -> ${author.slug}`);
   } else {
-    console.log(`ℹ️ Found existing author: ${author.name} (ID: ${author.id})`);
+    console.log(`ℹ️ Found existing author: ${author.name} (ID: ${author.id}, slug: ${author.slug})`);
   }
 
   // b) Find or create Company record for ONGC
