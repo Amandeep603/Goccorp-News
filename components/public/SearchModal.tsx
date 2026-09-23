@@ -241,7 +241,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                           fill
                           sizes="56px"
                           className="object-cover"
-                          unoptimized={item.imageUrl.startsWith("/uploads/")}
+                          unoptimized={item.imageUrl.startsWith("/uploads/") || item.imageUrl.includes("blob.vercel-storage.com")}
                         />
                       ) : (
                         <ArticleImagePlaceholder iconClassName="w-5 h-5 text-white/25" />

@@ -141,7 +141,7 @@ export default async function AuthorProfilePage({
                     fill
                     className="object-cover"
                     sizes="112px"
-                    unoptimized={author.imageUrl.startsWith("/uploads/")}
+                    unoptimized={author.imageUrl.startsWith("/uploads/") || author.imageUrl.includes("blob.vercel-storage.com")}
                   />
                 </div>
               ) : (

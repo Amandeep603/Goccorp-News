@@ -4,7 +4,7 @@ const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-inline' 'unsafe-eval' https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com;
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com;
-  img-src 'self' data: blob: https://placehold.co https://images.unsplash.com https://www.google.com https://translate.google.com https://translate.googleapis.com https://www.gstatic.com;
+  img-src 'self' data: blob: https://placehold.co https://images.unsplash.com https://www.google.com https://translate.google.com https://translate.googleapis.com https://www.gstatic.com https://*.public.blob.vercel-storage.com;
   font-src 'self' data: https://fonts.gstatic.com;
   connect-src 'self' https: https://translate.googleapis.com https://translate-pa.googleapis.com;
   frame-src 'self' data: blob: https://translate.google.com https://translate.googleapis.com;
@@ -25,6 +25,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.public.blob.vercel-storage.com",
       },
     ],
   },

@@ -599,7 +599,7 @@ export default function ArticleForm({
                 type="url"
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="https://images.unsplash.com/... or /uploads/..."
+                placeholder="https://images.unsplash.com/... or https://...blob.vercel-storage.com/..."
                 className="w-full px-2.5 py-1.5 text-xs border border-gray-300 rounded-md focus:ring-1 focus:ring-navy outline-none text-gray-700"
               />
             </div>

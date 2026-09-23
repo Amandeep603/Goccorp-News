@@ -223,7 +223,7 @@ export default async function Home() {
                                 priority
                                 sizes="(max-width: 640px) 100vw, 260px"
                                 className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                unoptimized={heroMain.imageUrl!.startsWith("/uploads/")}
+                                unoptimized={heroMain.imageUrl!.startsWith("/uploads/") || heroMain.imageUrl!.includes("blob.vercel-storage.com")}
                               />
                             ) : (
                               <ArticleImagePlaceholder iconClassName="w-9 h-9 text-white/25" />

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
+import { put } from "@vercel/blob";
 import { validateAdminSession } from "@/lib/auth";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -49,10 +49,6 @@ export async function POST(req: Request) {
     const ext = allowedExts.includes(originalExt) ? originalExt : ".jpg";
 
     const uniqueName = `${crypto.randomUUID()}${ext}`;
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-
-    // Ensure upload directory exists
-    await fs.mkdir(uploadDir, { recursive: true });
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
@@ -75,18 +71,25 @@ export async function POST(req: Request) {
       );
     }
 
-    const filePath = path.join(uploadDir, uniqueName);
-    await fs.writeFile(filePath, buffer);
-
-    const publicUrl = `/uploads/${uniqueName}`;
+    // Upload directly to Vercel Blob cloud storage
+    const blob = await put(`uploads/${uniqueName}`, buffer, {
+      access: "public",
+      contentType: file.type,
+    });
 
     return NextResponse.json({
       success: true,
-      url: publicUrl,
+      url: blob.url,
       filename: uniqueName,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Upload handler error:", error);
+    if (error?.message?.includes("No token found") || error?.name === "VercelBlobError") {
+      return NextResponse.json(
+        { error: "Vercel Blob storage token (BLOB_READ_WRITE_TOKEN) is not configured. Please set the BLOB_READ_WRITE_TOKEN environment variable." },
+        { status: 500 }
+      );
+    }
     return NextResponse.json(
       { error: "Something went wrong while uploading the file." },
       { status: 500 }

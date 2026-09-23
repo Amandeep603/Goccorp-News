@@ -231,7 +231,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                       width={40}
                       height={40}
                       className="object-cover w-full h-full"
-                      unoptimized={article.author.imageUrl.startsWith("/uploads/")}
+                      unoptimized={article.author.imageUrl.startsWith("/uploads/") || article.author.imageUrl.includes("blob.vercel-storage.com")}
                     />
                   ) : (
                     authorName
@@ -363,7 +363,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 priority
                 sizes="(max-width: 1024px) 100vw, 896px"
                 className="object-cover"
-                unoptimized={article.imageUrl.startsWith("/uploads/")}
+                unoptimized={article.imageUrl.startsWith("/uploads/") || article.imageUrl.includes("blob.vercel-storage.com")}
               />
             ) : (
               <ArticleImagePlaceholder iconClassName="w-14 h-14 sm:w-16 sm:h-16" />

@@ -185,7 +185,7 @@ export default function ArticleCard({
             fill
             sizes="96px"
             className="object-cover group-hover:scale-105 transition-transform duration-300"
-            unoptimized={article.imageUrl!.startsWith("/uploads/")}
+            unoptimized={article.imageUrl!.startsWith("/uploads/") || article.imageUrl!.includes("blob.vercel-storage.com")}
           />
         ) : (
           <ArticleImagePlaceholder iconClassName="w-7 h-7 text-white/25" />
