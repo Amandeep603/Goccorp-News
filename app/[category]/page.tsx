@@ -209,11 +209,10 @@ export default async function CategoryPage({
                 <Link
                   key={cat.id}
                   href={`/${cat.slug}`}
-                  className={`px-3 py-1 text-xs font-semibold rounded-full border transition-all whitespace-nowrap ${
-                    isCurrent
+                  className={`px-3 py-1 text-xs font-semibold rounded-full border transition-all whitespace-nowrap ${isCurrent
                       ? "bg-navy text-white border-navy shadow-xs"
                       : "bg-white text-gray-600 border-gray-200 hover:border-navy hover:text-navy"
-                  }`}
+                    }`}
                 >
                   {cat.name}
                 </Link>

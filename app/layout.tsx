@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import Header from "@/components/public/Header";
 import Footer from "@/components/public/Footer";
+import GoogleTranslate from "@/components/public/GoogleTranslate";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -44,6 +45,7 @@ export default function RootLayout({
         <div className="flex-1">{children}</div>
         <Footer />
         <Analytics />
+        <GoogleTranslate />
       </body>
     </html>
   );

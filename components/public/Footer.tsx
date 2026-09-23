@@ -202,7 +202,7 @@ export default function Footer() {
       {/* Bottom Copyright Strip */}
       <div className="border-t border-white/10 bg-navy/80 py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-gray-400">
-          <p>© 2026 GovCorp News. All rights reserved.</p>
+          <p>© 2026 <span className="notranslate" translate="no">GovCorp News</span>. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -13,15 +13,15 @@ export interface PublicArticleCardProps {
   imageUrl?: string | null;
   category?: string | { name: string; slug: string } | null;
   company?:
-    | string
-    | {
-        id?: string;
-        name: string;
-        slug: string;
-        sector?: string | null;
-        type?: string | null;
-      }
-    | null;
+  | string
+  | {
+    id?: string;
+    name: string;
+    slug: string;
+    sector?: string | null;
+    type?: string | null;
+  }
+  | null;
   author?: string | { name: string } | null;
   date?: string;
   publishedAt?: Date | string | null;
@@ -58,10 +58,10 @@ export function getCompanyRatnaBadge(
   company?:
     | string
     | {
-        name?: string | null;
-        sector?: string | null;
-        type?: string | null;
-      }
+      name?: string | null;
+      sector?: string | null;
+      type?: string | null;
+    }
     | null
 ) {
   if (!company || typeof company === "string") return null;
@@ -108,15 +108,15 @@ export default function ArticleCard({
     article.date ||
     (article.publishedAt
       ? new Date(article.publishedAt).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        })
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
       : new Date(article.createdAt || Date.now()).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }));
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }));
 
   const isHi = lang === "hi";
   const displayTitle = isHi && article.titleHi?.trim() ? article.titleHi : article.title;

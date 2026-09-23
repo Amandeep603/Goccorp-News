@@ -2,11 +2,12 @@ import type { NextConfig } from "next";
 
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval';
-  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-  img-src 'self' data: blob: https://placehold.co https://images.unsplash.com;
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://translate.google.com https://translate.googleapis.com https://translate-pa.googleapis.com;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com;
+  img-src 'self' data: blob: https://placehold.co https://images.unsplash.com https://www.google.com https://translate.google.com https://translate.googleapis.com https://www.gstatic.com;
   font-src 'self' data: https://fonts.gstatic.com;
-  connect-src 'self' https:;
+  connect-src 'self' https: https://translate.googleapis.com https://translate-pa.googleapis.com;
+  frame-src 'self' data: blob: https://translate.google.com https://translate.googleapis.com;
   frame-ancestors 'none';
   form-action 'self';
   base-uri 'self';

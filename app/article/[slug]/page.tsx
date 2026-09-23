@@ -84,23 +84,23 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   // 3. Fetch 3 real related articles from the same category
   const relatedCategoryIds = article.categoryId
     ? [
-        article.categoryId,
-        ...(article.category?.parentId ? [article.category.parentId] : []),
-      ]
+      article.categoryId,
+      ...(article.category?.parentId ? [article.category.parentId] : []),
+    ]
     : [];
 
   const relatedArticles =
     relatedCategoryIds.length > 0
       ? await prisma.article.findMany({
-          where: {
-            status: "published",
-            id: { not: article.id },
-            categoryId: { in: relatedCategoryIds },
-          },
-          include: { category: true, author: true, company: true },
-          orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-          take: 3,
-        })
+        where: {
+          status: "published",
+          id: { not: article.id },
+          categoryId: { in: relatedCategoryIds },
+        },
+        include: { category: true, author: true, company: true },
+        orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+        take: 3,
+      })
       : [];
 
   const categoryName = article.category?.name || "News";
@@ -110,21 +110,21 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     article.author?.slug ||
     (article.author?.name
       ? article.author.name
-          .toLowerCase()
-          .replace(/[^\w\s-]/g, "")
-          .replace(/[\s_-]+/g, "-")
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/[\s_-]+/g, "-")
       : null);
   const displayDate = article.publishedAt
     ? new Date(article.publishedAt).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })
     : new Date(article.createdAt).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      });
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
 
   return (
     <div className="w-full bg-background min-h-screen pb-20 font-sans">

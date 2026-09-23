@@ -38,14 +38,14 @@ export default async function Home() {
   // 3. Fetch Side Hero Articles (excluding main hero article)
   const heroSideArticles = heroMain
     ? await prisma.article.findMany({
-        where: {
-          status: "published",
-          id: { not: heroMain.id },
-        },
-        include: { category: true, author: true, company: true },
-        orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-        take: 2,
-      })
+      where: {
+        status: "published",
+        id: { not: heroMain.id },
+      },
+      include: { category: true, author: true, company: true },
+      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+      take: 2,
+    })
     : [];
 
   // 4. Fetch Category Section Blocks (Companies, Market, Sectors, Government)
@@ -98,17 +98,17 @@ export default async function Home() {
   const heroAuthor = heroMain?.author?.name || "Editorial Staff";
   const heroDate = heroMain?.publishedAt
     ? new Date(heroMain.publishedAt).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })
     : heroMain?.createdAt
-    ? new Date(heroMain.createdAt).toLocaleDateString("en-US", {
+      ? new Date(heroMain.createdAt).toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
         year: "numeric",
       })
-    : "";
+      : "";
 
   return (
     <div className="w-full bg-background pb-14">
