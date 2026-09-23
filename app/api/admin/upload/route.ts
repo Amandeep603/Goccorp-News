@@ -84,6 +84,12 @@ export async function POST(req: Request) {
     });
   } catch (error: any) {
     console.error("Upload handler error:", error);
+    if (error?.message?.includes("Cannot use public access on a private store")) {
+      return NextResponse.json(
+        { error: "The configured Vercel Blob store is set to 'Private'. Public website images require a 'Public' Blob store so visitors can view them. Please create a Public store in Vercel." },
+        { status: 500 }
+      );
+    }
     if (error?.message?.includes("No token found") || error?.name === "VercelBlobError") {
       return NextResponse.json(
         { error: "Vercel Blob storage token (BLOB_READ_WRITE_TOKEN) is not configured. Please set the BLOB_READ_WRITE_TOKEN environment variable." },
