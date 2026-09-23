@@ -4,6 +4,18 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 import { generateSlug } from "@/lib/validations/article";
 
+function isValidImageUrl(url: string | null | undefined): boolean {
+  if (!url || typeof url !== "string") return false;
+  const trimmed = url.trim();
+  if (trimmed.startsWith("/")) return true;
+  try {
+    const parsed = new URL(trimmed);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 export interface CompanyItem {
   id: string;
   name: string;
@@ -459,7 +471,7 @@ export default function CompaniesManager({ initialCompanies }: CompaniesManagerP
                   Company Logo
                 </label>
 
-                {formLogoUrl ? (
+                {isValidImageUrl(formLogoUrl) ? (
                   <div className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
                     <div className="w-12 h-12 rounded-md bg-white border border-gray-200 p-1 flex items-center justify-center shrink-0 overflow-hidden">
                       <Image

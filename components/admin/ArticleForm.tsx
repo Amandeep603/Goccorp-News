@@ -6,6 +6,18 @@ import Image from "next/image";
 import Link from "next/link";
 import TipTapEditor from "@/components/admin/TipTapEditor";
 import { generateSlug } from "@/lib/validations/article";
+ 
+function isValidImageUrl(url: string | null | undefined): boolean {
+  if (!url || typeof url !== "string") return false;
+  const trimmed = url.trim();
+  if (trimmed.startsWith("/")) return true;
+  try {
+    const parsed = new URL(trimmed);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
 
 interface CategoryOption {
   id: string;
@@ -513,7 +525,7 @@ export default function ArticleForm({
             </h3>
 
             {/* Image Preview */}
-            {imageUrl ? (
+            {isValidImageUrl(imageUrl) ? (
               <div className="relative aspect-16/10 w-full rounded-lg overflow-hidden bg-gray-100 border border-gray-200 group">
                 <Image
                   src={imageUrl}

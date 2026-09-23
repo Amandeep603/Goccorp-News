@@ -41,6 +41,9 @@ export function loadGoogleTranslateScript() {
 
 export default function GoogleTranslate() {
   useEffect(() => {
+    if (typeof window !== "undefined" && window.location.pathname.startsWith("/admin")) {
+      return;
+    }
     // Only load if user previously explicitly selected Hindi
     if (document.cookie.includes("googtrans=/en/hi")) {
       loadGoogleTranslateScript();

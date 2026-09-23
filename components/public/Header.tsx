@@ -90,16 +90,23 @@ export default function Header() {
       loadGoogleTranslateScript();
       window.location.reload();
     } else {
-      // Revert to English
-      // If user hasn't loaded translation or isn't on Hindi, this is a no-op
-      const hasTranslation =
-        document.cookie.includes("googtrans=/en/hi") ||
-        Boolean(typeof document !== "undefined" && document.getElementById("google-translate-script"));
-      if (!hasTranslation) {
-        return;
-      }
-      document.cookie = "googtrans=/en/en; path=/";
+      // Revert to English: delete googtrans cookie entirely across root and host domains
+      const hostname = typeof window !== "undefined" ? window.location.hostname : "";
+      const domainParts = hostname ? hostname.split(".") : [];
+
       document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = "lang=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+      if (hostname) {
+        document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${hostname};`;
+        document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${hostname};`;
+      }
+
+      if (domainParts.length >= 2) {
+        const rootDomain = domainParts.slice(-2).join(".");
+        document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${rootDomain};`;
+      }
+
       window.location.reload();
     }
   };

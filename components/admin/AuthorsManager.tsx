@@ -3,6 +3,18 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 
+function isValidImageUrl(url: string | null | undefined): boolean {
+  if (!url || typeof url !== "string") return false;
+  const trimmed = url.trim();
+  if (trimmed.startsWith("/")) return true;
+  try {
+    const parsed = new URL(trimmed);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 export interface AuthorItem {
   id: string;
   name: string;
@@ -405,7 +417,7 @@ export default function AuthorsManager({ initialAuthors }: AuthorsManagerProps) 
                   Author Photo
                 </label>
 
-                {formImageUrl ? (
+                {isValidImageUrl(formImageUrl) ? (
                   <div className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
                     <div className="w-12 h-12 rounded-full bg-white border border-gray-200 overflow-hidden shrink-0">
                       <Image

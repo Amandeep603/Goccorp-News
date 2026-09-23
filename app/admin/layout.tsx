@@ -13,8 +13,10 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AdminProviders>
-      <AdminShell>{children}</AdminShell>
-    </AdminProviders>
+    <div className="notranslate" translate="no">
+      <AdminProviders>
+        <AdminShell>{children}</AdminShell>
+      </AdminProviders>
+    </div>
   );
 }
