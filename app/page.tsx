@@ -1,11 +1,43 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import ArticleCard, { getBadgeColor, getCompanyRatnaBadge } from "@/components/public/ArticleCard";
 import ArticleImagePlaceholder from "@/components/public/ArticleImagePlaceholder";
+import { DEFAULT_SITE_TITLE, DEFAULT_SITE_DESCRIPTION, DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/seo";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: DEFAULT_SITE_TITLE,
+  description: DEFAULT_SITE_DESCRIPTION,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: DEFAULT_SITE_TITLE,
+    description: DEFAULT_SITE_DESCRIPTION,
+    url: "/",
+    siteName: SITE_NAME,
+    images: [
+      {
+        url: DEFAULT_OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: SITE_NAME,
+      },
+    ],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: DEFAULT_SITE_TITLE,
+    description: DEFAULT_SITE_DESCRIPTION,
+    images: [DEFAULT_OG_IMAGE],
+  },
+};
 
 export default async function Home() {
   const cookieStore = await cookies();

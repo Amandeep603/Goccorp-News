@@ -5,6 +5,7 @@ import "./globals.css";
 import Header from "@/components/public/Header";
 import Footer from "@/components/public/Footer";
 import GoogleTranslate from "@/components/public/GoogleTranslate";
+import { getBaseUrl, SITE_NAME, DEFAULT_SITE_TITLE, DEFAULT_SITE_DESCRIPTION, DEFAULT_OG_IMAGE } from "@/lib/seo";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -19,8 +20,41 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "GovCorp News",
-  description: "Independent reporting and insights on corporate governance, public policy, and government affairs.",
+  metadataBase: new URL(getBaseUrl()),
+  title: {
+    default: DEFAULT_SITE_TITLE,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: DEFAULT_SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: DEFAULT_SITE_TITLE,
+    description: DEFAULT_SITE_DESCRIPTION,
+    url: "/",
+    siteName: SITE_NAME,
+    images: [
+      {
+        url: DEFAULT_OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: SITE_NAME,
+      },
+    ],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: DEFAULT_SITE_TITLE,
+    description: DEFAULT_SITE_DESCRIPTION,
+    images: [DEFAULT_OG_IMAGE],
+  },
   icons: {
     icon: [
       { url: "/favicon.ico" },

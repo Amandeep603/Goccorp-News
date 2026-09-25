@@ -28,7 +28,7 @@ export default async function EditArticlePage({ params }: EditArticlePageProps) 
       orderBy: { name: "asc" },
     }),
     prisma.company.findMany({
-      select: { id: true, name: true, slug: true },
+      select: { id: true, name: true, slug: true, sector: true },
       orderBy: { name: "asc" },
     }),
     prisma.author.findMany({

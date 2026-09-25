@@ -7,6 +7,8 @@ import prisma from "@/lib/prisma";
 import ArticleCard, { getBadgeColor } from "@/components/public/ArticleCard";
 import ArticleImagePlaceholder from "@/components/public/ArticleImagePlaceholder";
 
+import { getBaseUrl } from "@/lib/seo";
+
 export const revalidate = 60;
 
 interface ArticlePageProps {
@@ -23,7 +25,7 @@ export async function generateMetadata({
 
   const article = await prisma.article.findUnique({
     where: { slug },
-    include: { category: true },
+    include: { category: true, author: true },
   });
 
   if (!article || article.status !== "published") {
@@ -34,14 +36,38 @@ export async function generateMetadata({
 
   const displayTitle = isHi && article.titleHi?.trim() ? article.titleHi : article.title;
   const displaySummary = isHi && article.summaryHi?.trim() ? article.summaryHi : article.summary;
+  const canonicalUrl = `/article/${article.slug}`;
+  const ogImageUrl = article.imageUrl || "/logo.png";
 
   return {
     title: `${displayTitle} | GovCorp News`,
     description: displaySummary,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: displayTitle,
       description: displaySummary,
-      images: article.imageUrl ? [{ url: article.imageUrl }] : [],
+      url: canonicalUrl,
+      siteName: "GovCorp News",
+      type: "article",
+      publishedTime: article.publishedAt?.toISOString(),
+      modifiedTime: article.updatedAt.toISOString(),
+      authors: article.author ? [article.author.name] : undefined,
+      section: article.category?.name,
+      images: [
+        {
+          url: ogImageUrl,
+          alt: displayTitle,
+        },
+      ],
+      locale: isHi ? "hi_IN" : "en_IN",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: displayTitle,
+      description: displaySummary,
+      images: [ogImageUrl],
     },
   };
 }
@@ -126,8 +152,50 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       year: "numeric",
     });
 
+  const baseUrl = getBaseUrl();
+  const articleUrl = `${baseUrl}/article/${article.slug}`;
+  const resolvedImageUrl = article.imageUrl
+    ? (article.imageUrl.startsWith("http") ? article.imageUrl : `${baseUrl}${article.imageUrl}`)
+    : `${baseUrl}/logo.png`;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: displayTitle,
+    description: displaySummary,
+    image: [resolvedImageUrl],
+    datePublished: (article.publishedAt || article.createdAt).toISOString(),
+    dateModified: article.updatedAt.toISOString(),
+    author: [
+      {
+        "@type": "Person",
+        name: article.author?.name || "Editorial Team",
+        ...(article.author?.slug ? { url: `${baseUrl}/author/${article.author.slug}` } : {}),
+      },
+    ],
+    publisher: {
+      "@type": "Organization",
+      name: "GovCorp News",
+      url: baseUrl,
+      logo: {
+        "@type": "ImageObject",
+        url: `${baseUrl}/logo.png`,
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": articleUrl,
+    },
+    ...(article.category?.name ? { articleSection: article.category.name } : {}),
+  };
+
   return (
     <div className="w-full bg-background min-h-screen pb-20 font-sans">
+      {/* Schema.org NewsArticle JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Top Breadcrumbs & Header Bar */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">

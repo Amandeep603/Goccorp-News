@@ -31,17 +31,38 @@ export async function generateMetadata({
     };
   }
 
+  const title = `${author.name} — Articles | GovCorp News`;
   const description =
     author.bio ||
     `Read all reporting, analysis, and articles by ${author.name} on GovCorp News.`;
+  const canonicalUrl = `/author/${author.slug || slug}`;
+  const ogImageUrl = author.imageUrl || "/logo.png";
 
   return {
-    title: `${author.name} - Author Profile | GovCorp News`,
+    title,
     description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
-      title: `${author.name} | GovCorp News`,
+      title,
       description,
-      images: author.imageUrl ? [{ url: author.imageUrl }] : [],
+      url: canonicalUrl,
+      siteName: "GovCorp News",
+      type: "profile",
+      images: [
+        {
+          url: ogImageUrl,
+          alt: `${author.name} | GovCorp News`,
+        },
+      ],
+      locale: "en_IN",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImageUrl],
     },
   };
 }

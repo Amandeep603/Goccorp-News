@@ -31,9 +31,38 @@ export async function generateMetadata({
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(" ");
 
+  const title = `${categoryTitle} News | GovCorp News`;
+  const description = `Latest public sector enterprise news, analysis, and government policy updates in ${categoryTitle}.`;
+  const canonicalUrl = `/${slug}`;
+
   return {
-    title: `${categoryTitle} News | GovCorp News`,
-    description: `Latest public sector enterprise news, analysis, and government policy updates in ${categoryTitle}.`,
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: "GovCorp News",
+      images: [
+        {
+          url: "/logo.png",
+          width: 1200,
+          height: 630,
+          alt: `${categoryTitle} News | GovCorp News`,
+        },
+      ],
+      locale: "en_IN",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/logo.png"],
+    },
   };
 }
 
