@@ -215,7 +215,7 @@ export default async function CategoryPage({
               {category.children.map((sub) => (
                 <Link
                   key={sub.id}
-                  href={`/${sub.slug}`}
+                  href={`/${category.slug}/${sub.slug}`}
                   className="px-3 py-1 text-xs font-semibold rounded-full border border-gray-200 bg-gray-50 text-gray-700 hover:bg-white hover:border-navy hover:text-navy transition-all whitespace-nowrap"
                 >
                   {sub.name}

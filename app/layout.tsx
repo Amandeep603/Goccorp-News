@@ -6,6 +6,7 @@ import Header from "@/components/public/Header";
 import Footer from "@/components/public/Footer";
 import GoogleTranslate from "@/components/public/GoogleTranslate";
 import { getBaseUrl, SITE_NAME, DEFAULT_SITE_TITLE, DEFAULT_SITE_DESCRIPTION, DEFAULT_OG_IMAGE } from "@/lib/seo";
+import { getNavbarCategories } from "@/lib/categories";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -67,15 +68,17 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const initialNavItems = await getNavbarCategories();
+
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className="font-sans antialiased bg-background min-h-screen flex flex-col">
-        <Header />
+        <Header initialNavItems={initialNavItems} />
         <div className="flex-1">{children}</div>
         <Footer />
         <Analytics />

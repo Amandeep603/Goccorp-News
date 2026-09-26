@@ -31,8 +31,9 @@ model Category {
   name     String
   slug     String     @unique
   parentId String?    @db.ObjectId
-  parent   Category?  @relation("SubCategories", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  children Category[] @relation("SubCategories")
+  order    Int        @default(0)
+  parent   Category?  @relation("CategoryToSub", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children Category[] @relation("CategoryToSub")
   articles Article[]
 }
 

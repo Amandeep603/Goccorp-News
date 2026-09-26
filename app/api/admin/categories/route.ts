@@ -52,42 +52,53 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!slug) {
-      slug = generateSlug(name);
-    }
-
-    // Check slug uniqueness
-    const existing = await prisma.category.findUnique({
-      where: { slug },
-    });
-
-    if (existing) {
+    // Sub-categories MUST have a parent (top-level tabs are fixed to prevent navbar breaking)
+    if (!parentId || typeof parentId !== "string" || !parentId.trim()) {
       return NextResponse.json(
-        { error: `A category with slug "${slug}" already exists.` },
+        { error: "Parent category is required. Sub-categories must be assigned to an existing top-level parent." },
         { status: 400 }
       );
     }
 
-    // Verify parent exists if provided
-    let validParentId: string | null = null;
-    if (parentId && parentId.trim() !== "") {
-      const parent = await prisma.category.findUnique({
-        where: { id: parentId },
+    const parent = await prisma.category.findUnique({
+      where: { id: parentId.trim() },
+    });
+    if (!parent) {
+      return NextResponse.json(
+        { error: "Selected parent category does not exist." },
+        { status: 400 }
+      );
+    }
+
+    // Auto-generate safe/unique slug with fallback collision handling
+    let candidateSlug = slug ? generateSlug(slug) : generateSlug(name);
+    if (!candidateSlug) {
+      candidateSlug = generateSlug(name);
+    }
+
+    const collision = await prisma.category.findUnique({
+      where: { slug: candidateSlug },
+    });
+
+    if (collision) {
+      // Fallback: parent-slug + "-" + candidateSlug
+      const fallbackSlug = `${parent.slug}-${candidateSlug}`;
+      const secondCollision = await prisma.category.findUnique({
+        where: { slug: fallbackSlug },
       });
-      if (!parent) {
-        return NextResponse.json(
-          { error: "Selected parent category does not exist." },
-          { status: 400 }
-        );
+
+      if (!secondCollision) {
+        candidateSlug = fallbackSlug;
+      } else {
+        candidateSlug = `${fallbackSlug}-${Date.now().toString(36)}`;
       }
-      validParentId = parent.id;
     }
 
     const category = await prisma.category.create({
       data: {
         name: name.trim(),
-        slug,
-        parentId: validParentId,
+        slug: candidateSlug,
+        parentId: parent.id,
       },
       include: {
         parent: {
@@ -103,10 +114,11 @@ export async function POST(req: Request) {
     });
 
     revalidatePath("/admin/categories");
-    revalidatePath("/(public)", "layout");
+    revalidatePath("/", "layout");
+    revalidatePath("/api/categories");
 
     return NextResponse.json(
-      { success: true, category, message: "Category created successfully." },
+      { success: true, category, message: `Sub-category "${category.name}" created under "${parent.name}".` },
       { status: 201 }
     );
   } catch (error) {

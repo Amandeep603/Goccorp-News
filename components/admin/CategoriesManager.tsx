@@ -52,11 +52,12 @@ export default function CategoriesManager({ initialCategories }: CategoriesManag
     return false;
   });
 
-  const handleOpenAddModal = () => {
+  const handleOpenAddModal = (defaultParentId?: string) => {
     setEditingCategory(null);
     setFormName("");
     setFormSlug("");
-    setFormParentId("");
+    const initialParent = defaultParentId || (parentOptions[0]?.id ?? "");
+    setFormParentId(initialParent);
     setSlugManuallyEdited(false);
     setFormError(null);
     setModalOpen(true);
@@ -85,6 +86,11 @@ export default function CategoriesManager({ initialCategories }: CategoriesManag
 
     if (!formName.trim()) {
       setFormError("Category name is required.");
+      return;
+    }
+
+    if (!editingCategory && !formParentId) {
+      setFormError("Parent category is required. Sub-categories must belong to a top-level parent tab.");
       return;
     }
 
@@ -251,16 +257,16 @@ export default function CategoriesManager({ initialCategories }: CategoriesManag
           )}
         </div>
 
-        {/* Add Category Button */}
+        {/* Add Sub-Category Button */}
         <button
-          onClick={handleOpenAddModal}
+          onClick={() => handleOpenAddModal()}
           type="button"
           className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-navy hover:bg-navy/90 text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
           </svg>
-          <span>Add Category</span>
+          <span>Add Sub-Category</span>
         </button>
       </div>
 
@@ -329,7 +335,7 @@ export default function CategoriesManager({ initialCategories }: CategoriesManag
                           </span>
                         ) : (
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-navy/10 text-navy">
-                            Parent Category
+                            Parent Tab
                           </span>
                         )}
                       </td>
@@ -360,6 +366,16 @@ export default function CategoriesManager({ initialCategories }: CategoriesManag
 
                       {/* Actions */}
                       <td className="py-3.5 px-4 text-right space-x-2 whitespace-nowrap">
+                        {!isChild && (
+                          <button
+                            onClick={() => handleOpenAddModal(item.id)}
+                            type="button"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-saffron bg-saffron/10 hover:bg-saffron hover:text-white rounded-md transition-colors cursor-pointer"
+                            title={`Add a new sub-category under ${item.name}`}
+                          >
+                            + Add Sub
+                          </button>
+                        )}
                         <button
                           onClick={() => handleOpenEditModal(item)}
                           type="button"
@@ -367,13 +383,22 @@ export default function CategoriesManager({ initialCategories }: CategoriesManag
                         >
                           Edit
                         </button>
-                        <button
-                          onClick={() => setCategoryToDelete(item)}
-                          type="button"
-                          className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-600 hover:text-white rounded-md transition-colors cursor-pointer"
-                        >
-                          Delete
-                        </button>
+                        {isChild ? (
+                          <button
+                            onClick={() => setCategoryToDelete(item)}
+                            type="button"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-600 hover:text-white rounded-md transition-colors cursor-pointer"
+                          >
+                            Delete
+                          </button>
+                        ) : (
+                          <span
+                            className="inline-flex items-center px-2 py-1 text-2xs font-semibold text-gray-400 bg-gray-50 rounded-md select-none"
+                            title="Fixed top-level navbar category tab (cannot be deleted)"
+                          >
+                            Core Tab
+                          </span>
+                        )}
                       </td>
                     </tr>
                   );
@@ -391,11 +416,15 @@ export default function CategoriesManager({ initialCategories }: CategoriesManag
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50/50">
               <h3 className="font-bold text-navy text-base">
-                {editingCategory ? "Edit Category" : "Add New Category"}
+                {editingCategory
+                  ? editingCategory.parentId
+                    ? "Edit Sub-Category"
+                    : "Edit Parent Category"
+                  : "Add New Sub-Category"}
               </h3>
               <button
                 onClick={() => setModalOpen(false)}
-                className="text-gray-400 hover:text-navy text-lg font-bold p-1 leading-none"
+                className="text-gray-400 hover:text-navy text-lg font-bold p-1 leading-none cursor-pointer"
               >
                 ×
               </button>
@@ -409,15 +438,44 @@ export default function CategoriesManager({ initialCategories }: CategoriesManag
                 </div>
               )}
 
-              {/* Name */}
+              {/* Parent Dropdown (Required for new sub-categories) */}
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Category Name <span className="text-red-500">*</span>
+                  Parent Category {editingCategory && !editingCategory.parentId ? "(Core Tab)" : <span className="text-red-500">*</span>}
+                </label>
+                {editingCategory && !editingCategory.parentId ? (
+                  <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-semibold text-navy">
+                    Fixed Top-Level Navigation Tab
+                  </div>
+                ) : (
+                  <select
+                    required
+                    value={formParentId}
+                    onChange={(e) => setFormParentId(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-navy focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy bg-white"
+                  >
+                    <option value="" disabled>-- Select Parent Category Tab --</option>
+                    {parentOptions.map((parent) => (
+                      <option key={parent.id} value={parent.id}>
+                        {parent.name} (/{parent.slug})
+                      </option>
+                    ))}
+                  </select>
+                )}
+                <p className="mt-1 text-2xs text-gray-400">
+                  This item will appear as a sub-menu entry under this parent tab in the navbar.
+                </p>
+              </div>
+
+              {/* Sub-category Name */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  {editingCategory && !editingCategory.parentId ? "Category Name" : "Sub-category Name"} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Clean Energy, Banking, Infrastructure"
+                  placeholder="e.g. Oil & Gas, Clean Energy, Banking"
                   value={formName}
                   onChange={(e) => handleNameChange(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-navy focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy"
@@ -447,28 +505,6 @@ export default function CategoriesManager({ initialCategories }: CategoriesManag
                 </div>
                 <p className="mt-1 text-2xs text-gray-400">
                   Auto-generated from name. Lowercase alphanumeric and hyphens only.
-                </p>
-              </div>
-
-              {/* Parent Dropdown */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Parent Category (Optional)
-                </label>
-                <select
-                  value={formParentId}
-                  onChange={(e) => setFormParentId(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-navy focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy bg-white"
-                >
-                  <option value="">None (Top-level Parent Category)</option>
-                  {parentOptions.map((parent) => (
-                    <option key={parent.id} value={parent.id}>
-                      {parent.name} (/{parent.slug})
-                    </option>
-                  ))}
-                </select>
-                <p className="mt-1 text-2xs text-gray-400">
-                  Leave empty to make this a primary category in the top navigation bar.
                 </p>
               </div>
 

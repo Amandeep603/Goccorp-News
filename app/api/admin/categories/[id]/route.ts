@@ -95,7 +95,8 @@ export async function PUT(req: Request, { params }: RouteParams) {
     });
 
     revalidatePath("/admin/categories");
-    revalidatePath("/(public)", "layout");
+    revalidatePath("/", "layout");
+    revalidatePath("/api/categories");
 
     return NextResponse.json({
       success: true,
@@ -134,6 +135,16 @@ export async function DELETE(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Category not found." }, { status: 404 });
     }
 
+    // Prevent deleting seeded top-level categories
+    if (category.parentId === null) {
+      return NextResponse.json(
+        {
+          error: `Top-level navigation category "${category.name}" cannot be deleted to preserve the core navbar structure.`,
+        },
+        { status: 400 }
+      );
+    }
+
     // 1. Prevent deleting if category has child categories
     if (category._count.children > 0) {
       return NextResponse.json(
@@ -163,7 +174,8 @@ export async function DELETE(req: Request, { params }: RouteParams) {
     });
 
     revalidatePath("/admin/categories");
-    revalidatePath("/(public)", "layout");
+    revalidatePath("/", "layout");
+    revalidatePath("/api/categories");
 
     return NextResponse.json({
       success: true,

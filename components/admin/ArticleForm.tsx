@@ -754,12 +754,15 @@ export default function ArticleForm({
                   const subs = childCategories.filter((c) => c.parentId === parent.id);
                   return (
                     <optgroup key={parent.id} label={parent.name}>
-                      <option value={parent.id}>{parent.name} (Main)</option>
-                      {subs.map((sub) => (
-                        <option key={sub.id} value={sub.id}>
-                          &nbsp;&nbsp;↳ {sub.name}
-                        </option>
-                      ))}
+                      {subs.length === 0 ? (
+                        <option value={parent.id}>{parent.name}</option>
+                      ) : (
+                        subs.map((sub) => (
+                          <option key={sub.id} value={sub.id}>
+                            {sub.name}
+                          </option>
+                        ))
+                      )}
                     </optgroup>
                   );
                 })}

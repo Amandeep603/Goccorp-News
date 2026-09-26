@@ -7,18 +7,22 @@ import { usePathname } from "next/navigation";
 import SearchModal from "./SearchModal";
 import { loadGoogleTranslateScript } from "@/components/public/GoogleTranslate";
 
-type SubItem = {
+export type SubItem = {
+  id?: string;
   name: string;
+  slug?: string;
   href: string;
 };
 
-type NavItem = {
+export type NavItem = {
+  id?: string;
   name: string;
+  slug?: string;
   href: string;
   subItems?: SubItem[];
 };
 
-const navItems: NavItem[] = [
+const defaultNavItems: NavItem[] = [
   { name: "Home", href: "/" },
   {
     name: "Companies",
@@ -47,7 +51,8 @@ const navItems: NavItem[] = [
     href: "/sectors",
     subItems: [
       { name: "Defence & Aerospace", href: "/sectors/defence" },
-      { name: "Energy, Oil & Gas", href: "/sectors/energy" },
+      { name: "Oil & Gas", href: "/sectors/oil-gas" },
+      { name: "Power & Energy", href: "/sectors/power" },
       { name: "Banking & Financial Services", href: "/sectors/banking" },
       { name: "Infrastructure & Railways", href: "/sectors/infrastructure" },
       { name: "Metals & Mining", href: "/sectors/metals-mining" },
@@ -70,13 +75,42 @@ const navItems: NavItem[] = [
   { name: "Analysis", href: "/analysis" },
 ];
 
-export default function Header() {
+export interface HeaderProps {
+  initialNavItems?: NavItem[];
+}
+
+export default function Header({ initialNavItems }: HeaderProps = {}) {
   const pathname = usePathname();
+  const [navItems, setNavItems] = useState<NavItem[]>(
+    initialNavItems && initialNavItems.length > 0 ? initialNavItems : defaultNavItems
+  );
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileOpenDropdown, setMobileOpenDropdown] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<"En" | "Hi">("En");
   const [searchOpen, setSearchOpen] = useState(false);
+
+  // Live fetch from Category API to ensure dynamic updates without redeploy
+  useEffect(() => {
+    let isMounted = true;
+    async function loadLiveNavItems() {
+      try {
+        const res = await fetch("/api/categories");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.navItems && data.navItems.length > 0 && isMounted) {
+            setNavItems(data.navItems);
+          }
+        }
+      } catch (err) {
+        console.error("Live category fetch error in header:", err);
+      }
+    }
+    loadLiveNavItems();
+    return () => {
+      isMounted = false;
+    };
+  }, [pathname]);
 
   useEffect(() => {
     const isHindi = document.cookie.includes("googtrans=/en/hi");
