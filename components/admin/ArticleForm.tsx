@@ -47,7 +47,7 @@ function findMatchingCategoryForSector(
   });
   if (match) return match;
 
-  // 2. Token overlap (e.g. "Oil & Gas" matches "Oil & Gas" or "Energy, Oil & Gas", "Power" matches "Power", "Banking" matches "Banking & Financial Services")
+  // 2. Token overlap (e.g. "Oil & Gas" matches "Oil & Gas", "Power" matches "Power & Energy", "Banking" matches "Banking & Financial Services")
   const tokens = normSector
     .split(/[\s,/]+/)
     .filter((t) => t.length > 2 && t !== "and" && t !== "the");

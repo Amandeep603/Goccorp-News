@@ -8,6 +8,7 @@ export interface CategoryItem {
   name: string;
   slug: string;
   parentId: string | null;
+  order?: number;
   parent?: {
     id: string;
     name: string;
@@ -171,7 +172,9 @@ export default function CategoriesManager({ initialCategories }: CategoriesManag
   };
 
   // Build hierarchical list: Parent categories with their children directly beneath them
-  const parentCategories = categories.filter((c) => !c.parentId);
+  const parentCategories = [...categories.filter((c) => !c.parentId)].sort(
+    (a, b) => (a.order ?? 0) - (b.order ?? 0)
+  );
   const childCategories = categories.filter((c) => Boolean(c.parentId));
 
   const hierarchicalList: Array<{ item: CategoryItem; isChild: boolean; parentName?: string }> = [];

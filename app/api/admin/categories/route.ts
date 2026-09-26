@@ -22,7 +22,7 @@ export async function GET() {
           },
         },
       },
-      orderBy: [{ parentId: "asc" }, { name: "asc" }],
+      orderBy: [{ name: "asc" }],
     });
 
     return NextResponse.json({ success: true, categories });

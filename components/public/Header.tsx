@@ -22,80 +22,32 @@ export type NavItem = {
   subItems?: SubItem[];
 };
 
-const defaultNavItems: NavItem[] = [
-  { name: "Home", href: "/" },
-  {
-    name: "Companies",
-    href: "/companies",
-    subItems: [
-      { name: "PSUs (Maharatna & Navratna)", href: "/companies/psus" },
-      { name: "Private Corporates", href: "/companies/private-corporates" },
-      { name: "Boardroom & Governance", href: "/companies/governance" },
-      { name: "Quarterly Results", href: "/companies/quarterly-results" },
-      { name: "Mergers & Acquisitions", href: "/companies/mergers-acquisitions" },
-    ],
-  },
-  {
-    name: "Market",
-    href: "/market",
-    subItems: [
-      { name: "BSE / NSE Updates", href: "/market/bse-nse" },
-      { name: "PSU Stocks Index", href: "/market/psu-stocks" },
-      { name: "Commodities & Energy", href: "/market/commodities" },
-      { name: "Rupee / Dollar Tracker", href: "/market/currencies" },
-    ],
-  },
-  { name: "International", href: "/international" },
-  {
-    name: "Sectors",
-    href: "/sectors",
-    subItems: [
-      { name: "Defence & Aerospace", href: "/sectors/defence" },
-      { name: "Oil & Gas", href: "/sectors/oil-gas" },
-      { name: "Power & Energy", href: "/sectors/power" },
-      { name: "Banking & Financial Services", href: "/sectors/banking" },
-      { name: "Infrastructure & Railways", href: "/sectors/infrastructure" },
-      { name: "Metals & Mining", href: "/sectors/metals-mining" },
-      { name: "Telecom & Technology", href: "/sectors/telecom" },
-      { name: "Aviation & Shipping", href: "/sectors/aviation" },
-      { name: "Healthcare & Pharma", href: "/sectors/healthcare" },
-    ],
-  },
-  { name: "Appointments", href: "/appointments" },
-  { name: "Jobs", href: "/jobs" },
-  {
-    name: "Government",
-    href: "/government",
-    subItems: [
-      { name: "Policy Decisions", href: "/government/policy" },
-      { name: "Cabinet Approvals", href: "/government/cabinet" },
-      { name: "Ministry of Finance", href: "/government/finance" },
-    ],
-  },
-  { name: "Analysis", href: "/analysis" },
-];
-
 export interface HeaderProps {
   initialNavItems?: NavItem[];
 }
 
-export default function Header({ initialNavItems }: HeaderProps = {}) {
+export default function Header({ initialNavItems = [] }: HeaderProps = {}) {
   const pathname = usePathname();
-  const [navItems, setNavItems] = useState<NavItem[]>(
-    initialNavItems && initialNavItems.length > 0 ? initialNavItems : defaultNavItems
-  );
+  const [navItems, setNavItems] = useState<NavItem[]>(initialNavItems);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileOpenDropdown, setMobileOpenDropdown] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<"En" | "Hi">("En");
   const [searchOpen, setSearchOpen] = useState(false);
 
+  // Sync state if initialNavItems changes
+  useEffect(() => {
+    if (initialNavItems && initialNavItems.length > 0) {
+      setNavItems(initialNavItems);
+    }
+  }, [initialNavItems]);
+
   // Live fetch from Category API to ensure dynamic updates without redeploy
   useEffect(() => {
     let isMounted = true;
     async function loadLiveNavItems() {
       try {
-        const res = await fetch("/api/categories");
+        const res = await fetch("/api/categories", { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           if (data.navItems && data.navItems.length > 0 && isMounted) {

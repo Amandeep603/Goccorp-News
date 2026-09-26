@@ -22,7 +22,7 @@ export async function getNavbarCategories(): Promise<NavItem[]> {
       orderBy: [{ order: "asc" }, { name: "asc" }],
       include: {
         children: {
-          orderBy: [{ order: "asc" }, { name: "asc" }],
+          orderBy: [{ name: "asc" }],
           select: {
             id: true,
             name: true,

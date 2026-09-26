@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export const revalidate = 30; // Cache for 30s, revalidated immediately on admin changes
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function GET() {
   try {
@@ -10,7 +11,7 @@ export async function GET() {
       orderBy: [{ order: "asc" }, { name: "asc" }],
       include: {
         children: {
-          orderBy: [{ order: "asc" }, { name: "asc" }],
+          orderBy: [{ name: "asc" }],
           select: {
             id: true,
             name: true,
@@ -39,11 +40,18 @@ export async function GET() {
       };
     });
 
-    return NextResponse.json({
-      success: true,
-      categories: topLevelCategories,
-      navItems,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        categories: topLevelCategories,
+        navItems,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+        },
+      }
+    );
   } catch (error) {
     console.error("[API_GET_PUBLIC_CATEGORIES_ERROR]", error);
     return NextResponse.json(
