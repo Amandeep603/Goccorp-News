@@ -108,6 +108,13 @@ export async function POST(req: Request) {
     const isPublished = data.status === "published";
     const publishedAt = isPublished ? new Date() : null;
 
+    if (data.isFeatured) {
+      await prisma.article.updateMany({
+        where: { isFeatured: true },
+        data: { isFeatured: false },
+      });
+    }
+
     const newArticle = await prisma.article.create({
       data: {
         title: data.title,
@@ -121,6 +128,8 @@ export async function POST(req: Request) {
         status: data.status,
         publishedAt: publishedAt,
         isFeatured: data.isFeatured ?? false,
+        isTopStory: data.isTopStory ?? false,
+        topStoryOrder: data.topStoryOrder ?? 0,
         categoryId: data.categoryId || null,
         companyId: data.companyId || null,
         authorId: data.authorId || null,

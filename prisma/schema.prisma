@@ -76,5 +76,7 @@ model Article {
   company     Company?  @relation(fields: [companyId], references: [id])
   tagIds      String[]  @db.ObjectId
   tags        Tag[]     @relation(fields: [tagIds], references: [id])
-  isFeatured  Boolean   @default(false)
+  isFeatured    Boolean   @default(false)
+  isTopStory    Boolean   @default(false)
+  topStoryOrder Int       @default(0)
 }

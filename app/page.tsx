@@ -6,6 +6,7 @@ import prisma from "@/lib/prisma";
 import ArticleCard, { getBadgeColor, getCompanyRatnaBadge } from "@/components/public/ArticleCard";
 import ArticleImagePlaceholder from "@/components/public/ArticleImagePlaceholder";
 import { DEFAULT_SITE_TITLE, DEFAULT_SITE_DESCRIPTION, DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/seo";
+import { t } from "@/lib/i18n";
 
 export const revalidate = 60;
 
@@ -67,18 +68,37 @@ export default async function Home() {
     });
   }
 
-  // 3. Fetch Side Hero Articles (excluding main hero article)
-  const heroSideArticles = heroMain
-    ? await prisma.article.findMany({
+  // 3. Fetch Side Hero Articles (Top Stories side panel)
+  let heroSideArticles: NonNullable<typeof heroMain>[] = [];
+  if (heroMain) {
+    const topStories = await prisma.article.findMany({
       where: {
         status: "published",
+        isTopStory: true,
         id: { not: heroMain.id },
       },
       include: { category: true, author: true, company: true },
-      orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
-      take: 2,
-    })
-    : [];
+      orderBy: [{ topStoryOrder: "asc" }, { publishedAt: "desc" }, { createdAt: "desc" }],
+      take: 5,
+    });
+
+    heroSideArticles = [...topStories];
+
+    // If fewer than 2 top stories are explicitly selected, top up with latest published articles
+    if (heroSideArticles.length < 2) {
+      const existingIds = [heroMain.id, ...heroSideArticles.map((a) => a.id)];
+      const fallbackArticles = await prisma.article.findMany({
+        where: {
+          status: "published",
+          id: { notIn: existingIds },
+        },
+        include: { category: true, author: true, company: true },
+        orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+        take: 2 - heroSideArticles.length,
+      });
+      heroSideArticles = [...heroSideArticles, ...fallbackArticles];
+    }
+  }
 
   // 4. Fetch Category Section Blocks (Companies, Market, Sectors, Government)
   const targetSections = [
@@ -150,12 +170,12 @@ export default async function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center h-10">
               {/* Ticker Badge */}
-              <div className="flex items-center gap-1.5 bg-saffron text-white text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-xs shrink-0 z-10">
+              <div className="flex items-center gap-1.5 bg-saffron text-white text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-xs shrink-0 z-10 notranslate" translate="no">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
                 </span>
-                <span>Breaking</span>
+                <span>{t("Breaking", isHi)}</span>
               </div>
 
               {/* Marquee Container */}
@@ -214,8 +234,8 @@ export default async function Home() {
                             </span>
                           )}
 
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-saffron ml-1">
-                            • Featured Story
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-saffron ml-1 notranslate" translate="no">
+                            • {t("Featured Story", isHi)}
                           </span>
                         </div>
 
@@ -270,13 +290,13 @@ export default async function Home() {
 
               {/* Smaller Side Stories: Dense Vertical Feed */}
               {heroSideArticles.length > 0 && (
-                <div className="lg:col-span-5 xl:col-span-4 flex flex-col bg-white rounded-xs border border-gray-200 p-4 sm:p-5 justify-between">
+                <div className="lg:col-span-5 xl:col-span-4 flex flex-col bg-white rounded-xs border border-gray-200 p-4 sm:p-5 h-fit self-start shadow-2xs">
                   <div className="pb-2 mb-1 border-b-2 border-navy flex items-center justify-between">
-                    <span className="font-sans font-bold uppercase tracking-wider text-xs text-navy">
-                      Top Stories
+                    <span className="font-sans font-bold uppercase tracking-wider text-xs text-navy notranslate" translate="no">
+                      {t("Top Stories", isHi)}
                     </span>
-                    <span className="text-[10px] text-gray-400 font-sans font-medium uppercase tracking-wider">
-                      Live Editorial
+                    <span className="text-[10px] text-gray-400 font-sans font-medium uppercase tracking-wider notranslate" translate="no">
+                      {t("Live Editorial", isHi)}
                     </span>
                   </div>
 
@@ -284,6 +304,25 @@ export default async function Home() {
                     {heroSideArticles.map((sideArticle) => (
                       <ArticleCard key={sideArticle.id} article={sideArticle} lang={lang} />
                     ))}
+                  </div>
+
+                  {/* View More on Top Stories */}
+                  <div className="pt-3 mt-2 border-t border-gray-100 flex items-center justify-end">
+                    <Link
+                      href="/top-stories"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-navy hover:text-saffron transition-colors uppercase tracking-wider group notranslate"
+                      translate="no"
+                    >
+                      <span>{t("View More Top Stories", isHi)}</span>
+                      <svg
+                        className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </Link>
                   </div>
                 </div>
               )}

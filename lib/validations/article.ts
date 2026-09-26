@@ -20,6 +20,8 @@ export const articleSchema = z.object({
   authorId: z.string().optional().nullable(),
   tags: z.array(z.string()).default([]),
   isFeatured: z.boolean().default(false),
+  isTopStory: z.boolean().default(false),
+  topStoryOrder: z.number().int().optional().default(0),
 });
 
 export type ArticleFormData = z.infer<typeof articleSchema>;

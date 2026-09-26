@@ -10,6 +10,8 @@ export interface ArticleRow {
   slug: string;
   status: string;
   isFeatured: boolean;
+  isTopStory?: boolean;
+  topStoryOrder?: number;
   publishedAt: string | Date | null;
   createdAt: string | Date;
   category?: {
@@ -255,7 +257,12 @@ export default function ArticlesTable({ initialArticles }: ArticlesTableProps) {
                           <span className="truncate max-w-[240px]">/article/{article.slug}</span>
                           {article.isFeatured && (
                             <span className="px-1.5 py-0.2 rounded-xs bg-saffron/15 text-saffron font-bold text-[10px] uppercase">
-                              Hero
+                              Featured
+                            </span>
+                          )}
+                          {article.isTopStory && (
+                            <span className="px-1.5 py-0.2 rounded-xs bg-navy/15 text-navy font-bold text-[10px] uppercase">
+                              Top Story{article.topStoryOrder ? ` #${article.topStoryOrder}` : ""}
                             </span>
                           )}
                         </div>

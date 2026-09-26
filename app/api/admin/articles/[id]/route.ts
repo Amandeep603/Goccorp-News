@@ -112,6 +112,13 @@ export async function PUT(req: Request, { params }: RouteParams) {
       ? existingArticle.publishedAt || new Date()
       : null;
 
+    if (data.isFeatured) {
+      await prisma.article.updateMany({
+        where: { isFeatured: true, id: { not: id } },
+        data: { isFeatured: false },
+      });
+    }
+
     const updatedArticle = await prisma.article.update({
       where: { id },
       data: {
@@ -126,6 +133,8 @@ export async function PUT(req: Request, { params }: RouteParams) {
         status: data.status,
         publishedAt: publishedAt,
         isFeatured: data.isFeatured ?? false,
+        isTopStory: data.isTopStory ?? false,
+        topStoryOrder: data.topStoryOrder ?? 0,
         categoryId: data.categoryId || null,
         companyId: data.companyId || null,
         authorId: data.authorId || null,
@@ -139,6 +148,7 @@ export async function PUT(req: Request, { params }: RouteParams) {
     // Revalidate relevant pages
     try {
       revalidatePath("/");
+      revalidatePath("/top-stories");
       if (existingArticle.category?.slug) {
         revalidatePath(`/${existingArticle.category.slug}`);
       }

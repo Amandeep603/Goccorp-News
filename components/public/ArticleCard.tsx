@@ -183,7 +183,8 @@ export default function ArticleCard({
             src={article.imageUrl!}
             alt={displayTitle}
             fill
-            sizes="96px"
+            loading="lazy"
+            sizes="(max-width: 640px) 80px, 96px"
             className="object-cover group-hover:scale-105 transition-transform duration-300"
             unoptimized={article.imageUrl!.startsWith("/uploads/") || article.imageUrl!.includes("blob.vercel-storage.com")}
           />

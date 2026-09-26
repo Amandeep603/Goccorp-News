@@ -87,6 +87,8 @@ interface ArticleFormProps {
     imageUrl?: string | null;
     status?: string;
     isFeatured?: boolean;
+    isTopStory?: boolean;
+    topStoryOrder?: number;
     categoryId?: string | null;
     companyId?: string | null;
     authorId?: string | null;
@@ -129,6 +131,8 @@ export default function ArticleForm({
   const [companyId, setCompanyId] = useState(initialData?.companyId || "");
   const [authorId, setAuthorId] = useState(initialData?.authorId || "");
   const [isFeatured, setIsFeatured] = useState(initialData?.isFeatured ?? false);
+  const [isTopStory, setIsTopStory] = useState(initialData?.isTopStory ?? false);
+  const [topStoryOrder, setTopStoryOrder] = useState<number>(initialData?.topStoryOrder ?? 0);
 
   // Tags State
   const [tagInput, setTagInput] = useState("");
@@ -298,6 +302,8 @@ export default function ArticleForm({
       imageUrl: imageUrl.trim() || null,
       status: submitStatus,
       isFeatured,
+      isTopStory,
+      topStoryOrder: Number(topStoryOrder) || 0,
       categoryId: categoryId || null,
       companyId: companyId || null,
       authorId: authorId || null,
@@ -531,19 +537,63 @@ export default function ArticleForm({
               </div>
             </div>
 
-            {/* Featured Checkbox */}
-            <div className="pt-2 border-t border-gray-100">
-              <label className="flex items-center gap-2.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isFeatured}
-                  onChange={(e) => setIsFeatured(e.target.checked)}
-                  className="w-4 h-4 text-navy rounded border-gray-300 focus:ring-navy cursor-pointer"
-                />
-                <span className="text-xs font-semibold text-gray-700">
-                  Feature on Homepage Hero
-                </span>
-              </label>
+            {/* Editorial Placement: Featured Story & Top Stories */}
+            <div className="pt-2 border-t border-gray-100 space-y-3">
+              <div>
+                <label className="flex items-start gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isFeatured}
+                    onChange={(e) => setIsFeatured(e.target.checked)}
+                    className="w-4 h-4 mt-0.5 text-navy rounded border-gray-300 focus:ring-navy cursor-pointer"
+                  />
+                  <div>
+                    <span className="text-xs font-semibold text-gray-800 block">
+                      Set as Featured Story (Hero Main)
+                    </span>
+                    <span className="text-[11px] text-gray-500 leading-tight block">
+                      Primary story on homepage hero. Unsets any previous featured article.
+                    </span>
+                  </div>
+                </label>
+              </div>
+
+              <div>
+                <label className="flex items-start gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isTopStory}
+                    onChange={(e) => setIsTopStory(e.target.checked)}
+                    className="w-4 h-4 mt-0.5 text-navy rounded border-gray-300 focus:ring-navy cursor-pointer"
+                  />
+                  <div>
+                    <span className="text-xs font-semibold text-gray-800 block">
+                      Show in Top Stories Side Panel
+                    </span>
+                    <span className="text-[11px] text-gray-500 leading-tight block">
+                      Displays article in the &quot;Top Stories&quot; side panel on the homepage.
+                    </span>
+                  </div>
+                </label>
+              </div>
+
+              {isTopStory && (
+                <div className="pl-6 flex items-center gap-2">
+                  <label htmlFor="topStoryOrder" className="text-xs text-gray-600 font-medium">
+                    Priority:
+                  </label>
+                  <input
+                    id="topStoryOrder"
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={topStoryOrder}
+                    onChange={(e) => setTopStoryOrder(parseInt(e.target.value, 10) || 0)}
+                    className="w-16 px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-navy focus:border-navy"
+                  />
+                  <span className="text-[10px] text-gray-400">(Lower = higher priority)</span>
+                </div>
+              )}
             </div>
 
             {/* Action Buttons */}

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import SearchModal from "./SearchModal";
 import { loadGoogleTranslateScript } from "@/components/public/GoogleTranslate";
+import { t } from "@/lib/i18n";
 
 export type SubItem = {
   id?: string;
@@ -42,12 +43,13 @@ export default function Header({ initialNavItems = [] }: HeaderProps = {}) {
     }
   }, [initialNavItems]);
 
-  // Live fetch from Category API to ensure dynamic updates without redeploy
+  // Fetch from Category API only if initial items were missing on mount
   useEffect(() => {
+    if (navItems.length > 0) return;
     let isMounted = true;
     async function loadLiveNavItems() {
       try {
-        const res = await fetch("/api/categories", { cache: "no-store" });
+        const res = await fetch("/api/categories");
         if (res.ok) {
           const data = await res.json();
           if (data.navItems && data.navItems.length > 0 && isMounted) {
@@ -62,7 +64,7 @@ export default function Header({ initialNavItems = [] }: HeaderProps = {}) {
     return () => {
       isMounted = false;
     };
-  }, [pathname]);
+  }, [navItems.length]);
 
   useEffect(() => {
     const isHindi = document.cookie.includes("googtrans=/en/hi");
@@ -108,6 +110,8 @@ export default function Header({ initialNavItems = [] }: HeaderProps = {}) {
   const toggleMobileDropdown = (name: string) => {
     setMobileOpenDropdown((prev) => (prev === name ? null : name));
   };
+
+  const isHi = selectedLanguage === "Hi";
 
   return (
     <>
@@ -234,7 +238,7 @@ export default function Header({ initialNavItems = [] }: HeaderProps = {}) {
                             : "border-transparent text-navy hover:text-saffron hover:border-saffron"
                           }`}
                       >
-                        <span>{item.name}</span>
+                        <span className="notranslate" translate="no">{t(item.name, isHi)}</span>
                       </Link>
                       <button
                         type="button"
@@ -244,7 +248,7 @@ export default function Header({ initialNavItems = [] }: HeaderProps = {}) {
                             : "border-transparent text-gray-400 group-hover:text-saffron group-hover:border-saffron"
                           }`}
                         aria-expanded={isOpen}
-                        aria-label={`Open ${item.name} dropdown`}
+                        aria-label={`Open ${t(item.name, isHi)} dropdown`}
                       >
                         <svg
                           className={`w-3 h-3 transition-transform duration-200 ${isOpen ? "rotate-180 text-saffron" : ""
@@ -267,7 +271,7 @@ export default function Header({ initialNavItems = [] }: HeaderProps = {}) {
                       href={item.href}
                       className="inline-flex items-center py-3.5 px-2 transition-colors relative border-b-2 border-transparent text-navy hover:text-saffron hover:border-saffron"
                     >
-                      {item.name}
+                      <span className="notranslate" translate="no">{t(item.name, isHi)}</span>
                     </Link>
                   )}
 
@@ -283,10 +287,11 @@ export default function Header({ initialNavItems = [] }: HeaderProps = {}) {
                         <Link
                           key={sub.name}
                           href={sub.href}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:text-saffron hover:bg-gray-50 transition-colors"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:text-saffron hover:bg-gray-50 transition-colors notranslate"
+                          translate="no"
                           onClick={() => setOpenDropdown(null)}
                         >
-                          {sub.name}
+                          {t(sub.name, isHi)}
                         </Link>
                       ))}
                     </div>
@@ -356,15 +361,16 @@ export default function Header({ initialNavItems = [] }: HeaderProps = {}) {
                               <Link
                                 href={item.href}
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="font-medium text-navy hover:text-saffron transition-colors"
+                                className="font-medium text-navy hover:text-saffron transition-colors notranslate"
+                                translate="no"
                               >
-                                {item.name}
+                                {t(item.name, isHi)}
                               </Link>
                               <button
                                 type="button"
                                 onClick={() => toggleMobileDropdown(item.name)}
                                 className="p-1 text-gray-400 hover:text-navy"
-                                aria-label={`Toggle ${item.name} submenu`}
+                                aria-label={`Toggle ${t(item.name, isHi)} submenu`}
                               >
                                 <svg
                                   className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "rotate-180 text-saffron" : ""
@@ -389,9 +395,10 @@ export default function Header({ initialNavItems = [] }: HeaderProps = {}) {
                                     <Link
                                       href={sub.href}
                                       onClick={() => setMobileMenuOpen(false)}
-                                      className="block py-2 text-sm text-gray-600 hover:text-saffron transition-colors"
+                                      className="block py-2 text-sm text-gray-600 hover:text-saffron transition-colors notranslate"
+                                      translate="no"
                                     >
-                                      {sub.name}
+                                      {t(sub.name, isHi)}
                                     </Link>
                                   </li>
                                 ))}
@@ -402,9 +409,10 @@ export default function Header({ initialNavItems = [] }: HeaderProps = {}) {
                           <Link
                             href={item.href}
                             onClick={() => setMobileMenuOpen(false)}
-                            className="block py-3 font-medium text-navy hover:text-saffron transition-colors"
+                            className="block py-3 font-medium text-navy hover:text-saffron transition-colors notranslate"
+                            translate="no"
                           >
-                            {item.name}
+                            {t(item.name, isHi)}
                           </Link>
                         )}
                       </li>
